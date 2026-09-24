@@ -241,6 +241,19 @@ fun NoteEditorScreen(
         TextObjectKind.TEXT -> maxOf(110f, 76f + text.length / 45f * 28f)
     }
 
+    fun prepareObjectInsertion(y: Float, objectHeight: Float): Pair<CanvasDocument, List<NoteSection>> {
+        val ordered = SectionLayoutEngine.normalizedSections(sections)
+        val owner = SectionLayoutEngine.sectionAtY(ordered, y + 8f) ?: return document to sections
+        val index = ordered.indexOfFirst { it.id == owner.id }
+        if (index < 0 || index == ordered.lastIndex) return document to ordered
+        val nextAnchor = ordered[index + 1].verticalAnchor
+        val requiredBottom = y + objectHeight + 96f
+        if (requiredBottom <= nextAnchor) return document to ordered
+        val delta = maxOf(SectionLayoutEngine.GROWTH_CHUNK_DP, requiredBottom - nextAnchor)
+        val grown = SectionLayoutEngine.growSection(ordered, document, owner.id, delta)
+        return grown.canvas to grown.sections
+    }
+
     fun insertTextObject(
         kind: TextObjectKind,
         text: String = "",
@@ -274,19 +287,6 @@ fun NoteEditorScreen(
 
     fun updateTextObject(id: String, transform: (TextItem) -> TextItem) {
         applySnapshot(EditorSnapshot(ContentCanvasOps.update(document, id, transform), sections))
-    }
-
-    fun prepareObjectInsertion(y: Float, objectHeight: Float): Pair<CanvasDocument, List<NoteSection>> {
-        val ordered = SectionLayoutEngine.normalizedSections(sections)
-        val owner = SectionLayoutEngine.sectionAtY(ordered, y + 8f) ?: return document to sections
-        val index = ordered.indexOfFirst { it.id == owner.id }
-        if (index < 0 || index == ordered.lastIndex) return document to ordered
-        val nextAnchor = ordered[index + 1].verticalAnchor
-        val requiredBottom = y + objectHeight + 96f
-        if (requiredBottom <= nextAnchor) return document to ordered
-        val delta = maxOf(SectionLayoutEngine.GROWTH_CHUNK_DP, requiredBottom - nextAnchor)
-        val grown = SectionLayoutEngine.growSection(ordered, document, owner.id, delta)
-        return grown.canvas to grown.sections
     }
 
     suspend fun insertImage(stored: AttachmentStore.StoredAttachment) {
