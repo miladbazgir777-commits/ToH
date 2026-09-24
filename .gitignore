@@ -1,0 +1,29 @@
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Signing secrets — never commit private keys or passwords
+keystore.properties
+*.jks
+*.keystore
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Local logs / generated artifacts
+*.log
+artifacts/
