@@ -132,7 +132,7 @@ class AttachmentStore(private val context: Context) {
     }
 
     private inline fun <T> openPdf(path: String, block: (PdfRenderer) -> T): T {
-        ParcelFileDescriptor.open(File(path), ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+        return ParcelFileDescriptor.open(File(path), ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
             PdfRenderer(descriptor).use(block)
         }
     }
